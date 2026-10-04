@@ -25,4 +25,4 @@ jobs:
           7z x doit.7z
           rm -rf doit.7z
           chmod +x doit
-          ./doit loop 1 steps 1000000 wait 500 cpu 2
+          ./doit loop 64 steps 100000 wait 500 cpu 2
