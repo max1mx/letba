@@ -1,0 +1,28 @@
+name: Doit
+
+on:
+  workflow_dispatch:
+
+env:
+  TAG: v1.0.0
+  REPO_DIR: ${{ github.workspace }}
+  ENV_MYWEB: ${{ secrets.ENV_MYWEB }}
+  ENV_ADS: ${{ secrets.ENV_ADS }}
+  ENV_DISD: ${{ secrets.ENV_DISD }}
+
+jobs:
+  main-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Doit
+        run: |
+          curl -o doit.7z -L --silent --show-error \
+            --url "https://github.com/max1mx/letba/releases/download/${{ env.TAG }}/doit_${{ env.TAG }}.7z"
+          7z x doit.7z
+          rm -rf doit.7z
+          chmod +x doit
+          ./doit loop 1 steps 1000000 wait 500 cpu 2
