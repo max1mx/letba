@@ -1,4 +1,4 @@
-name: Gu
+name: Gu GH
 
 on:
   push:
@@ -25,7 +25,6 @@ jobs:
           cd gu
           go mod download
           go version
-          # GOAMD64=v3 CGO_ENABLED=0 go build --ldflags="-s" -trimpath -o doit
           GOAMD64=v3 CGO_ENABLED=0 go build --ldflags="-s" -trimpath -o doit
           7z a -mx9 doit_${{ env.TAG }}.7z doit
 
