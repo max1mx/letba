@@ -6,6 +6,8 @@ on:
 env:
   REPO_DIR: ${{ github.workspace }}
   TAG: v1.0.0
+  HF_TOKEN: ${{ secrets.HF_TOKEN }}
+  HF_REPO: ${{ secrets.HF_REPO }}
 
 jobs:
   main-job:
