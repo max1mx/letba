@@ -1,0 +1,36 @@
+name: Gu
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+env:
+  REPO_DIR: ${{ github.workspace }}
+  TAG: ${{ github.ref_name }}
+
+jobs:
+  main-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Build
+        run: |
+          cd gu
+          go mod download
+          go version
+          # GOAMD64=v3 CGO_ENABLED=0 go build --ldflags="-s" -trimpath -o doit
+          GOAMD64=v3 CGO_ENABLED=0 go build --ldflags="-s" -trimpath -o doit
+          7z a -mx9 doit_${{ env.TAG }}.7z doit
+
+      - name: Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            ${{ env.REPO_DIR }}/gu/doit_${{ env.TAG }}.7z
