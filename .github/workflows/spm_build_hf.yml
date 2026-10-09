@@ -1,4 +1,4 @@
-name: Gu HF
+name: spm build hf
 
 on:
   workflow_dispatch:
