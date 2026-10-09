@@ -17,8 +17,8 @@ jobs:
 
       - name: Install build tools
         run: |
-          sudo apt-get update
-          sudo apt-get install -y cmake ninja-build clang lld libssl-dev
+          sudo apt-get -qq update
+          sudo apt-get -qq install -y cmake ninja-build clang lld libssl-dev
 
       - name: Cache libsecp256k1 build
         id: cache-secp
