@@ -1,4 +1,4 @@
-name: secp256k1 bench
+name: bench secp256k1
 
 on:
   workflow_dispatch:
