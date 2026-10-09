@@ -3,7 +3,7 @@ name: bench secp256k1
 on:
   workflow_dispatch:
 
-#$defaults:
+#defaults:
 #  run:
 #    working-directory: scripts
 
