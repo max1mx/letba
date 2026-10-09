@@ -1,0 +1,81 @@
+name: secp256k1 bench
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-bench:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build clang lld libssl-dev
+
+      - name: Cache libsecp256k1 build
+        id: cache-secp
+        uses: actions/cache@v4
+        with:
+          path: libsecp256k1
+          key: secp-${{ runner.os }}-${{ hashFiles('build_secp.sh') }}
+
+      - name: Clone libsecp256k1
+        if: steps.cache-secp.outputs.cache-hit != 'true'
+        run: |
+          cd scripts
+          curl -L \
+            -o libsecp256k1.tar.gz \
+            --url "https://github.com/bitcoin-core/secp256k1/releases/download/v0.8.0/libsecp256k1-0.8.0.tar.gz"
+          tar -xvf libsecp256k1.tar.gz
+          mv libsecp256k1-0.8.0 libsecp256k1
+
+      - name: Configure libsecp256k1
+        if: steps.cache-secp.outputs.cache-hit != 'true'
+        env:
+          CC: clang
+        run: |
+          cd libsecp256k1
+          cmake -G Ninja -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_C_FLAGS_RELEASE="-O3 -march=native -mavx2 -fomit-frame-pointer" \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DSECP256K1_ENABLE_MODULE_RECOVERY=ON \
+            -DSECP256K1_ECMULT_GEN_KB=86 \
+            -DSECP256K1_BUILD_TESTS=OFF \
+            -DSECP256K1_BUILD_EXHAUSTIVE_TESTS=OFF \
+            -DSECP256K1_BUILD_BENCHMARK=OFF
+
+      - name: Build libsecp256k1
+        if: steps.cache-secp.outputs.cache-hit != 'true'
+        run: cmake --build build
+
+      - name: Show CPU info
+        run: lscpu | grep -E 'Model name|^CPU\(s\)|MHz'
+
+      - name: Compile benchmark (single-threaded)
+        run: |
+          cd ..
+          clang -O3 -march=native -mavx2 -DSECP256K1_STATIC \
+            -I libsecp256k1/include \
+            -o bench_st bench.c \
+            libsecp256k1/build/lib/libsecp256k1.a \
+            -lpthread
+
+      - name: Run single-threaded benchmark
+        run: ./bench_st
+
+      - name: Compile benchmark (multi-threaded)
+        run: |
+          clang -O3 -march=native -mavx2 -DSECP256K1_STATIC -DUSE_THREADS \
+            -I libsecp256k1/include \
+            -o bench_mt bench.c \
+            libsecp256k1/build/lib/libsecp256k1.a \
+            -lpthread
+
+      - name: Run multi-threaded benchmark
+        run: ./bench_mt
