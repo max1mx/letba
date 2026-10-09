@@ -1,9 +1,10 @@
-name: Gu GH
+name: spm build gh
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_dispatch:
+#  push:
+#    tags:
+#      - "v*.*.*"
 
 permissions:
   contents: write
