@@ -3,13 +3,17 @@ name: secp256k1 bench
 on:
   workflow_dispatch:
 
+#$defaults:
+#  run:
+#    working-directory: scripts
+
 jobs:
   build-and-bench:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout this repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install build tools
         run: |
@@ -18,27 +22,27 @@ jobs:
 
       - name: Cache libsecp256k1 build
         id: cache-secp
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
-          path: libsecp256k1
+          path: scripts/libsecp256k1
           key: secp-${{ runner.os }}-${{ hashFiles('build_secp.sh') }}
 
-      - name: Clone libsecp256k1
+      - name: Download libsecp256k1
         if: steps.cache-secp.outputs.cache-hit != 'true'
+        working-directory: scripts
         run: |
-          cd scripts
-          curl -L \
-            -o libsecp256k1.tar.gz \
+          curl -L -o secp.tar.gz \
             --url "https://github.com/bitcoin-core/secp256k1/releases/download/v0.8.0/libsecp256k1-0.8.0.tar.gz"
-          tar -xvf libsecp256k1.tar.gz
+          tar -xf secp.tar.gz
           mv libsecp256k1-0.8.0 libsecp256k1
+          rm -rf secp.tar.gz
 
       - name: Configure libsecp256k1
         if: steps.cache-secp.outputs.cache-hit != 'true'
+        working-directory: scripts/libsecp256k1
         env:
           CC: clang
         run: |
-          cd libsecp256k1
           cmake -G Ninja -B build \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=clang \
@@ -52,14 +56,15 @@ jobs:
 
       - name: Build libsecp256k1
         if: steps.cache-secp.outputs.cache-hit != 'true'
+        working-directory: scripts/libsecp256k1
         run: cmake --build build
 
       - name: Show CPU info
         run: lscpu | grep -E 'Model name|^CPU\(s\)|MHz'
 
       - name: Compile benchmark (single-threaded)
+        working-directory: scripts
         run: |
-          cd ..
           clang -O3 -march=native -mavx2 -DSECP256K1_STATIC \
             -I libsecp256k1/include \
             -o bench_st bench.c \
@@ -67,9 +72,11 @@ jobs:
             -lpthread
 
       - name: Run single-threaded benchmark
+        working-directory: scripts
         run: ./bench_st
 
       - name: Compile benchmark (multi-threaded)
+        working-directory: scripts
         run: |
           clang -O3 -march=native -mavx2 -DSECP256K1_STATIC -DUSE_THREADS \
             -I libsecp256k1/include \
@@ -78,4 +85,5 @@ jobs:
             -lpthread
 
       - name: Run multi-threaded benchmark
+        working-directory: scripts
         run: ./bench_mt
