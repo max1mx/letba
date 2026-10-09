@@ -1,4 +1,4 @@
-name: Doit
+name: spm doit
 
 on:
   workflow_dispatch:
