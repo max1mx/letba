@@ -9,7 +9,7 @@ env:
   ENV_MYWEB: ${{ secrets.ENV_MYWEB }}
   ENV_ADS: ${{ secrets.ENV_ADS }}
   ENV_DISD: ${{ secrets.ENV_DISD }}
-  ENV_HF: ${{ secrets.ENV_HF }}
+  HF_REPO: ${{ secrets.HF_REPO }}
 
 jobs:
   main-job:
@@ -22,7 +22,7 @@ jobs:
       - name: Doit
         run: |
           curl -o doit.7z -L --silent --show-error \
-            --url "https://huggingface.co/${{ env.ENV_HF }}/seol/resolve/main/doit_${{ env.TAG }}.7z?download=true"
+            --url "https://huggingface.co/${{ env.HF_REPO }}/seol/resolve/main/doit_${{ env.TAG }}.7z?download=true"
           7z x doit.7z
           rm -rf doit.7z
           chmod +x doit
