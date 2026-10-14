@@ -18,8 +18,8 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Build
+        working-directory: gu
         run: |
-          cd gu
           go mod download
           go version
           GOAMD64=v4 CGO_ENABLED=0 go build --ldflags="-s" -o doit
