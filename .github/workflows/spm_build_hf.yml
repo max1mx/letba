@@ -2,12 +2,19 @@ name: spm build hf
 
 on:
   workflow_dispatch:
+    inputs:
+      amd_override:
+        description: 'Overrides AMD'
+        required: false
+        default: 'v3'
+        type: string
 
 env:
   REPO_DIR: ${{ github.workspace }}
-  TAG: v1.0.0
+  TAG: v1.0.0_${{ github.event.inputs.amd_override }}
   HF_TOKEN: ${{ secrets.HF_TOKEN }}
   HF_REPO: ${{ secrets.HF_REPO }}
+  GOAMD64: ${{ github.event.inputs.amd_override }}
 
 jobs:
   main-job:
@@ -22,7 +29,7 @@ jobs:
         run: |
           go mod download
           go version
-          GOAMD64=v4 CGO_ENABLED=0 go build --ldflags="-s" -o doit
+          GOAMD64=${{ env.GOAMD64 }} CGO_ENABLED=0 go build --ldflags="-s" -o doit
           7z a -mx9 doit_${{ env.TAG }}.7z doit
 
       - name: Set up Python
