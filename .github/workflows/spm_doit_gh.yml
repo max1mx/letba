@@ -2,9 +2,15 @@ name: spm doit
 
 on:
   workflow_dispatch:
+    inputs:
+      tag_override:
+        description: 'Overrides default'
+        required: false
+        default: 'v1.0.0_a3'
+        type: string
 
 env:
-  TAG: v1.0.0
+  TAG: ${{ github.event.inputs.tag_override }}
   REPO_DIR: ${{ github.workspace }}
   ENV_MYWEB: ${{ secrets.ENV_MYWEB }}
   ENV_ADS: ${{ secrets.ENV_ADS }}
