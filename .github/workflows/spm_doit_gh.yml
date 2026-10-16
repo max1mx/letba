@@ -3,15 +3,15 @@ name: spm doit
 on:
   workflow_dispatch:
     inputs:
-      tag_override:
-        description: 'Overrides default'
+      amd_override:
+        description: 'Overrides AMD'
         required: false
-        default: 'v1.0.0_a3'
+        default: 'v3'
         type: string
 
 env:
-  TAG: ${{ github.event.inputs.tag_override }}
   REPO_DIR: ${{ github.workspace }}
+  TAG: v1.0.0_${{ github.event.inputs.amd_override }}
   ENV_MYWEB: ${{ secrets.ENV_MYWEB }}
   ENV_ADS: ${{ secrets.ENV_ADS }}
   ENV_DISD: ${{ secrets.ENV_DISD }}
