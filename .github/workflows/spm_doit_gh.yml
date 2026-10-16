@@ -2,8 +2,6 @@ name: spm doit
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 16 * * *'
 
 env:
   TAG: v1.0.0
