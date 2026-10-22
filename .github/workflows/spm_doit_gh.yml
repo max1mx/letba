@@ -8,10 +8,16 @@ on:
         required: false
         default: 'v3'
         type: string
+      loop_override:
+        description: 'Overrides Loop'
+        required: false
+        default: '5'
+        type: string
 
 env:
   REPO_DIR: ${{ github.workspace }}
   TAG: v1.0.0_${{ github.event.inputs.amd_override }}
+  LOOP: ${{ github.event.inputs.loop_override }}
   ENV_MYWEB: ${{ secrets.ENV_MYWEB }}
   ENV_ADS: ${{ secrets.ENV_ADS }}
   ENV_DISD: ${{ secrets.ENV_DISD }}
@@ -32,4 +38,4 @@ jobs:
           7z x doit.7z
           rm -rf doit.7z
           chmod +x doit
-          ./doit loop 5 steps 1000000 wait 0 cpu 3
+          ./doit loop ${{ env.LOOP }} steps 1000000 wait 0 cpu 3
