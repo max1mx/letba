@@ -24,14 +24,16 @@ env:
   HF_REPO: ${{ secrets.HF_REPO }}
 
 jobs:
-  main-job:
+  build:
     runs-on: ubuntu-latest
+    # timeout-minutes: 60
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
       - name: Doit
+        timeout-minutes: 45
         run: |
           curl -o doit.7z -L \
             --url "https://huggingface.co/${{ env.HF_REPO }}/resolve/main/doit_${{ env.TAG }}.7z?download=true"
